@@ -11,7 +11,8 @@ export class Websocket {
   public socketStatus = signal<boolean>(false);
 
   constructor(
-    private socket: Socket,
+    private socket: Socket
+
   ){
     this.checkStatus();
   }
@@ -28,6 +29,21 @@ export class Websocket {
         console.log ('Desconectado del servidor');
                 this.socketStatus.set(false);
       });
+    }
+
+    emit (evento: string, payload?: any, callback?: Function){
+
+      console.log( 'Emitiendo ' , evento);
+
+      //emit (EVENTO, payload, callback?)
+
+      this.socket.emit ( evento, payload, callback);
+
+    }
+
+    listen( evento: string ){
+      return this.socket.fromEvent( evento );
+      
     }
 }
 
