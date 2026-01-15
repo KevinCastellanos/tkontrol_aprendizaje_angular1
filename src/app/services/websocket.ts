@@ -31,6 +31,8 @@ export class Websocket {
       });
     }
 
+
+    
     emit (evento: string, payload?: any, callback?: Function){
 
       console.log( 'Emitiendo ' , evento);
