@@ -1,30 +1,55 @@
+// import { Injectable } from '@angular/core';
+// import { Observable } from 'rxjs';
+// import { Websocket } from './websocket';
+
+// @Injectable({
+//   providedIn: 'root'
+// })
+// export class Chat {
+
+//   constructor(private wsService: Websocket) {}
+
+//   getMessages(): Observable<any> {
+//     return new Observable(observer => {
+//       this.wsService.socket.on('mensaje', (msg: any) => {
+//         observer.next(msg);
+//       });
+//     });
+//   }
+
+//   sendMessage(mensaje: string) {
+//     this.wsService.emit('mensaje', { mensaje });
+//   }
+// }
+
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { Websocket } from './websocket';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
-
 export class Chat {
 
-  constructor(
-    public wsService: Websocket
-  ){ }
+  constructor(private wsService: Websocket) {}
 
-    sendMessage ( mensaje: string ){
+  // 1. ESCUCHAR: Cambiamos a 'mensaje-nuevo' para coincidir con el io.emit del servidor
+  getMessages(): Observable<any> {
+    return this.wsService.listen('mensaje-nuevo');
+  }
 
-      const payload = {
-        de: 'Rosales',
-        cuerpo: mensaje
-      };
+  // 2. ENVIAR: Incluimos el nombre del usuario que tenemos guardado en el servicio Websocket
+  sendMessage(texto: string) {
+    const payload = {
+      de: this.wsService.usuario()?.nombre || 'Anónimo', // Obtenemos el nombre del Signal
+      cuerpo: texto
+    };
 
-      this.wsService.emit (' mensaje ', payload);
+    // El servidor escucha el evento 'mensaje' para procesarlo
+    this.wsService.emit('mensaje', payload);
+  }
 
-    }
-
-    getMessages(){
-      return this.wsService.listen('mensaje-nuevo');
-    }
-
-  
+  getMessagesPrivate(){
+    return this.wsService.listen( 'mensaje-privado' );
+  }
 }
