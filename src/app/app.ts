@@ -42,11 +42,12 @@ import { Chat } from './services/chat';
   selector: 'app-root',
   standalone: true,
   imports: [
-    RouterOutlet, 
+    RouterOutlet,
     RouterModule, // Esto permite que funcionen las rutas
     Footer,
-    FormsModule
-  ],
+    FormsModule,
+    
+],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
@@ -57,6 +58,7 @@ export class App implements OnInit{
   constructor(
     public wsService: Websocket,
     public chatService: Chat
+    
   ) {
     console.log('AppComponent cargado');
   }

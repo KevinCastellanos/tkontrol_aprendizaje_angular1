@@ -22,20 +22,22 @@ export class Login implements OnInit {
     {  } // Inyectamos el Router
 
   ngOnInit() {
-    // ngOnInit debe estar vacío o con lógica de carga, no con funciones dentro
-    //se debe dejar sin funciones
+    
   }
 
-  // La función debe estar fuera de ngOnInit para que se inicialice antes 
-  Ingresar() {
 
+Ingresar() {
+  if (this.nombre.trim().length === 0) { return; }
+
+  // 1. Llamamos al servicio (que ahora devuelve una Promesa)
+  this.wsService.loginWS(this.nombre).then(() => {
     
-    if (this.nombre.trim().length === 0) { return; }
-      this.wsService.loginWS( this.nombre)
-    console.log('Usuario ingresado:', this.nombre);
+    // 2. Solo navegamos CUANDO el servidor ejecutó el callback
+    console.log('Usuario ingresado y configurado en el servidor:', this.nombre);
+    this.router.navigateByUrl('/mensajes'); 
     
-    // Navegamos a la ruta de mensajes que definiste en app.routes.ts
-    this.router.navigateByUrl('/mensajes');
-  }
+  });
+}
+
 }
 

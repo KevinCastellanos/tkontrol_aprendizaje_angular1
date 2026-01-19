@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 import { Socket } from 'ngx-socket-io';
 import { Usuario } from '../classes/usuario';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -19,8 +20,12 @@ export class Websocket {
   //ESTE ESTADO PERMITE QUE LA APP  PUEDA VER SI HAY CONEXION EN TIEMPO REAL Y PUEDE BRINDAR ESA INFORMACIÓN
   public socketStatus = signal<boolean>(false);
   public usuario = signal<Usuario | null>(null); // 👈 CLAVE
+  
 
-  constructor(private socket: Socket) {
+  constructor(
+    private socket: Socket,
+    private router: Router
+  ) {
     this.checkStatus();
     this.cargarStorage();
   }
@@ -33,6 +38,7 @@ export class Websocket {
       const user = this.usuario();
       if (user) {
         this.loginWS(user.nombre);
+        
       }
     });
 
@@ -49,15 +55,35 @@ export class Websocket {
 
 
 
-  loginWS(nombre: string, callback?: () => void) {
+loginWS(nombre: string) {
+  // Retornamos una Promesa para que el componente sepa CUÁNDO terminó el servidor
+  return new Promise<void>((callback) => {
     this.emit('configurar-usuario', { nombre }, (resp: any) => {
       const user = new Usuario(nombre);
-      this.usuario.set(user);       // 👈 ACTUALIZA EN VIVO EL USUARIO YA QUE NO LOGRABA HACERLO POR DEFECTO
+      this.usuario.set(user);
       this.guardarStorage(user);
-
-      if (callback) callback();
+      
+      callback(); // Avisamos que el servidor ya ejecutó el callback de socket.ts
     });
+  });
+}
+
+
+//cierra sessión para que no este una conexión activa el bton esta en mensajes.html y en mensajes.ts se configura la acción para salir.
+  logoutWS(){
+    this.usuario.set(null);
+    localStorage.removeItem('usuario');
+    
+    const payload = {
+      nombre: 'sin-nombre'
+    };
+
+    this.emit('configurar-usuario', payload,() => {});
+    this.router.navigateByUrl('');
+
+    
   }
+
 
 
   getUsuario(){
